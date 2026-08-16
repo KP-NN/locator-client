@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required for high-accuracy GPS coordinates -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Required as a fallback or for battery-efficient location tracking -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -25,8 +30,4 @@
         </activity>
     </application>
 
-    <!-- Required for high-accuracy GPS coordinates -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Required as a fallback or for battery-efficient location tracking -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
