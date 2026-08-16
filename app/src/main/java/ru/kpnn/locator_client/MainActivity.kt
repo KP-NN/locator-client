@@ -16,6 +16,7 @@ import ru.kpnn.locator_client.ui.theme.LocatorclientTheme
 
 import android.content.pm.PackageManager
 import android.location.Location
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresPermission
@@ -26,6 +27,10 @@ import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.tasks.CancellationTokenSource
 
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var coordinatesTextView: TextView
@@ -65,10 +70,35 @@ class MainActivity : ComponentActivity() {
             .addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     coordinatesTextView.text = "Lat: ${location.latitude}, Lon: ${location.longitude}"
+
+                    sendCurrentLocation(location)
                 } else {
                     coordinatesTextView.text = "Unable to find location."
                 }
             }
+    }
+
+    private fun sendCurrentLocation(location: Location) {
+        val client = OkHttpClient()
+        val json = """{"id": 42, "name": "John Smith", "lat": ${location.latitude}, "long": ${location.longitude}}"""
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val body = json.toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url("http://10.0.2.2:8080/users")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("API_FAILED", e.toString())
+                e.printStackTrace()
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use { /* Handle response on background thread */ }
+                Log.d("API_RESULT", response.toString())
+            }
+        })
     }
 }
 
